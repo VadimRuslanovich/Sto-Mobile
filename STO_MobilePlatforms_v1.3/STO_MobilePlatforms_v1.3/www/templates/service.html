@@ -1,0 +1,22 @@
+﻿<ion-view view-title={{data.Name}}>
+    <ion-content class="padding">
+        <h2>{{data.Name}}</h2>
+        <h4>{{data.Description}}</h4>
+        <h4>Price: {{data.Price}} $</h4>
+        <p>Comments:</p>
+        <ion-list>
+            <ion-item class="item item-avatar" ng-repeat="comment in data.Comments">
+                <img src="../img/user1.png">
+                <strong>{{comment.Author}}</strong>
+                <h5>{{comment.Created}}</h5>
+                <p>{{comment.Value}}</p>
+            </ion-item>
+        </ion-list>
+        <label class="item item-input">
+            <textarea placeholder="Comment" ng-model="post"></textarea>
+        </label>
+        <button class="button button-positive button-block"><!--ng-click="submitPost(data.Id)" ng-disabled="postIsNotEmpty()"-->
+            <i class="icon ion-checkmark"></i> Add comment
+        </button>
+    </ion-content>
+</ion-view>
