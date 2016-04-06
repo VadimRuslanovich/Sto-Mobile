@@ -28,7 +28,10 @@
                 <ion-item menu-close class="item-icon-left" href="#/app/services">
                     <i class="icon ion-wrench"></i>Services
                 </ion-item>
-                <ion-item menu-close class="item-icon-left" href="#/app/entry_to_service">
+                <ion-item menu-close class="item-icon-left" ng-show="isAuthenticated && checkRole(2)" href="#/app/orders">
+                    <i class="icon ion-clipboard"></i>Orders
+                </ion-item>
+                <ion-item menu-close class="item-icon-left" ng-show="isAuthenticated && checkRole(0)" href="#/app/entry_to_service">
                     <i class="icon ion-compose"></i>Entry to service
                 </ion-item>
                 <ion-item menu-close class="item-icon-left" href="#/app/exspress_help">

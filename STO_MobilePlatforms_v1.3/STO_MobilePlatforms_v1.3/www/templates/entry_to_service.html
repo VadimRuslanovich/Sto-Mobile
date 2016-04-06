@@ -1,5 +1,89 @@
 <ion-view view-title="Entry to service" cache-view="false" hideback-button="true">
     <ion-content>
-        Entry to service
+        <button class="button button-small button-outline button-positive">
+            Add new order
+        </button>
+        <ion-list>
+            <ion-item ng-repeat="order in orders track by $index">
+
+                <div class="card">
+                    <div class="item item-divider">
+                        Order #{{order.number}}
+                    </div>
+                    <div class="item item-text-wrap">
+
+                        <label class="item item-input item-select">
+                            <div class="input-label">
+                                Car
+                            </div>
+                            <select ng-model="order.CarId">
+                                <option ng-repeat="car in cars" value="{{car.Id}}">{{car.Brand}} - {{car.Model}}</option>
+                            </select>
+                        </label>
+                        <div class="item item-button-right">
+                            Or add new car
+                            <button class="button button-positive" ng-click="addNewCar(order.number)">
+                                <i class="icon ion-model-s"></i>
+                            </button>
+                        </div>
+
+                        <label class="item item-input item-select">
+                            <div class="input-label">
+                                Service
+                            </div>
+                            <select ng-model="order.ServiceId" ng-change="serviceChange(order.number)">
+                                <option ng-repeat="service in services" value="{{service.Id}}">{{service.Name}}</option>
+                            </select>
+                        </label>
+                        <div class="item item-button-right">
+                            Details Management
+                            <button class="button button-positive" ng-disabled="detailManagementHide(order.number) > 0"  ng-click="detailManagementOpen(order.number)">
+                                <i class="icon ion-gear-a"></i>
+                            </button>
+                        </div>
+
+                        <label class="item item-input item-select">
+                            <div class="input-label">
+                                Office
+                            </div>
+                            <select ng-model="order.OfficeId" ng-change="officeChange(order.number)">
+                                <option ng-repeat="office in offices" value="{{office.Id}}">{{office.Address}}</option>
+                            </select>
+                        </label>
+
+                        <label class="item item-input item-select">
+                            <div class="input-label">
+                                Mechanic
+                            </div>
+                            <select ng-model="order.MechanicId" ng-disabled="order.isMechanicAutoSelect">
+                                <option ng-repeat="mechanic in order.mechanicsArray" value="{{mechanic.Id}}">{{mechanic.FirstName}} {{mechanic.LastName}}</option>
+                            </select>
+                        </label>
+                        <ion-checkbox ng-model="order.isMechanicAutoSelect">Select Automatically</ion-checkbox>
+
+                        <label class="item item-input">
+                            <span class="input-label">Date</span>
+                            <input type="date" ng-model="order.Date" ng-change="dateChange(order.Date, order.MechanicId, order.isMechanicAutoSelect, order.OfficeId, order.ServiceId, order.number)">
+                        </label>
+                        <label class="item item-input item-select">
+                            <div class="input-label">
+                                Select a time
+                            </div>
+                            <select ng-model="order.Time">
+                                <option ng-repeat="timeObj in order.timeArray" ng-disabled="timeObj.IsDisabled" value="{{timeObj.Time}}">{{timeObj.Time}}</option>
+                            </select>
+                        </label>
+
+                    </div>
+                    <div class="item item-divider">
+                        <div class="button-bar">
+                            <a class="button" ng-click="removeOrder(order.number)">Remove</a>
+                            <a class="button" ng-click="createOrderSet()">Create</a>
+                        </div>
+                    </div>
+                </div>
+
+            </ion-item>
+        </ion-list>
     </ion-content>
 </ion-view>

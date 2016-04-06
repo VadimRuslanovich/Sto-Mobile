@@ -12,10 +12,10 @@
                 <p>{{comment.Value}}</p>
             </ion-item>
         </ion-list>
-        <label class="item item-input">
+        <label class="item item-input" ng-show="isAuthenticated">
             <textarea placeholder="Comment" ng-model="post"></textarea>
         </label>
-        <button class="button button-positive button-block"><!--ng-click="submitPost(data.Id)" ng-disabled="postIsNotEmpty()"-->
+        <button class="button button-positive button-block" ng-show="isAuthenticated" ng-click="submitPost(data.Id, post)"  ng-disabled="!post">
             <i class="icon ion-checkmark"></i> Add comment
         </button>
     </ion-content>

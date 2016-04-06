@@ -6,14 +6,14 @@
 // 'starter.controllers' is found in controllers.js
 angular.module('starter', ['ionic', 'ngCordova', 'ngStorage', 'starter.controllers', 'starter.factory', 'starter.services'])
 
-.run(['$rootScope', function ($rootScope, $localStorage) {
+.run(['$rootScope', function ($rootScope, $localStorage, $ionicPlatform) {
     $rootScope.isAuthenticated = false;
     // utility method to convert number to an array of elements
     $rootScope.getNumber = function (num) {
         return new Array(num);
     }
-}
-])
+
+}])
 
 .config(function($stateProvider, $urlRouterProvider, $httpProvider) {
   
@@ -61,7 +61,7 @@ angular.module('starter', ['ionic', 'ngCordova', 'ngStorage', 'starter.controlle
         views: {
             'menuContent': {
                 templateUrl: "templates/entry_to_service.html",
-                controller: 'EntryToServiceCtrl'
+                controller: 'orderController'
             }
         }
     })
@@ -90,10 +90,21 @@ angular.module('starter', ['ionic', 'ngCordova', 'ngStorage', 'starter.controlle
      url: "/profile",
      views: {
          'menuContent': {
-             templateUrl: "templates/profile.html"
+             templateUrl: "templates/profile.html",
+             controller: "ProfileCtrl"
          }
      }
  })
+
+.state('app.orders', {
+    url: "/orders",
+    views: {
+        'menuContent': {
+            templateUrl: "templates/orders.html",
+            controller: "OrdersCtrl"
+        }
+    }
+})
 
   $urlRouterProvider.otherwise('/app/home');
 });
