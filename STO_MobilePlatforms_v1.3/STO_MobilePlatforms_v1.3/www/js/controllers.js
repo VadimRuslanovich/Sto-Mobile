@@ -166,14 +166,19 @@ angular.module('starter.controllers', ['starter.factory', 'starter.services'])
         $scope.submitPost = function (serviceId, post) {
             debugger
             servicesService.submitPost(post, serviceId).then(function (comment) {
-                $scope.service.Comments.push(comment);
+                //$scope.service.Comments.push(comment);
                 $scope.post = "";
-                debugger
-                $location.path('/app/services');
+
+                servicesService.getService($scope.id).then(function (service) {
+                    $scope.data = service;
+                    //debugger
+                }, function (message) {
+                    //debugger
+                });
+
+                $scope.post = "";
             }, function (message) {
                 debugger
-
-                $location.path('/app/services');
             });
         };
 
@@ -200,7 +205,9 @@ angular.module('starter.controllers', ['starter.factory', 'starter.services'])
             var lat = position.coords.latitude;
             var long = position.coords.longitude;
 
-            var myLatlng = new google.maps.LatLng(lat, long);
+            var myLatlng = new google.maps.LatLng(53.6848179, 23.839348);
+
+           // var myLatlng = new google.maps.LatLng(lat, long);
 
             var mapOptions = {
                 center: myLatlng,
@@ -242,8 +249,8 @@ angular.module('starter.controllers', ['starter.factory', 'starter.services'])
 })
 
 
-.controller('orderController', ['$scope', '$q', 'orderService', 'servicesService', 'carService', 'officeService',
-    function ($scope, $q, orderService, servicesService, carService, officeService) {
+.controller('orderController', ['$scope', '$q', 'orderService', 'servicesService', 'carService', 'officeService', '$ionicPopup', '$ionicModal',
+function ($scope, $q, orderService, servicesService, carService, officeService, $ionicPopup, $ionicModal) {
       var getNewOrder = function (number) {
         return {
           number: number, CarId: null, ServiceId: null, MechanicId: null, Date: null, isMechanicAutoSelect: true, Time: null, spareParts: {
@@ -291,20 +298,35 @@ angular.module('starter.controllers', ['starter.factory', 'starter.services'])
       };
 
       $scope.addNewCar = function (orderNumber) {
-        $scope.orderNumberWithNewCarWindowOpened = orderNumber;
+          $scope.orderNumberWithNewCarWindowOpened = orderNumber;
+          $ionicModal.fromTemplateUrl('templates/modal.html', {
+              scope: $scope
+          }).then(function (modal) {
+              $scope.modal = modal;
+              $scope.modal.show();
+              $scope.hide = function () {
+                  $scope.orderNumberWithNewCarWindowOpened = null;
+                  $scope.newCar = {};
+                  $scope.modal.hide();
+              }
+          });
       };
+      
+
 
       var getMechanicsRequest = function (orderNumber) {
-        var order = $scope.orders.filter(function (x) { return x.number === parseInt(orderNumber) })[0];
+          var order = $scope.orders.filter(function (x) { return x.number === parseInt(orderNumber) })[0];
+          debugger
         if (order.OfficeId == null || order.OfficeId === "" || order.ServiceId == null || order.ServiceId === "") {
           order.mechanicsArray = [];
           return;
         }
-
+          debugger
         officeService.getMechanics(order.OfficeId, order.ServiceId).then(function (responce) {
           order.mechanicsArray = responce;
+        debugger
         }, function (error) {
-
+        debugger
         });
       };
 
@@ -373,7 +395,8 @@ angular.module('starter.controllers', ['starter.factory', 'starter.services'])
         });
       };
 
-      // CAR ACTIONS
+        // CAR ACTIONS
+    
       $scope.newCar = {};
 
       $scope.brandChanged = function(brand) {
@@ -391,6 +414,8 @@ angular.module('starter.controllers', ['starter.factory', 'starter.services'])
           $scope.cars.push(car);
           $scope.isCarProcess = false;
           $scope.cancelNewCar();
+
+          $scope.modal.hide();
         }, function (error) {
           
         });
