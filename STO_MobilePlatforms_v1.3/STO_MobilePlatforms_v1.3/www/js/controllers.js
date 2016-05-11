@@ -43,7 +43,6 @@ angular.module('starter.controllers', ['starter.factory', 'starter.services'])
                           callback();
                       }
                   }, function (error) {
-                      debugger
                       if (error.error && error.error_description) {
                           errorPopup('Code: ' + error.error + ' </br>' + 'Desc: ' + error.error_description);
                       } else {
@@ -130,7 +129,9 @@ angular.module('starter.controllers', ['starter.factory', 'starter.services'])
         $scope.dateChange = function (date) {
         mechanicsordersService.getOrders(date).then(function (result) {
             $scope.orders = result;
+            //debugger
         }, function (error) {
+            debugger
         });
       };
 
@@ -299,7 +300,7 @@ function ($scope, $q, orderService, servicesService, carService, officeService, 
 
       $scope.addNewCar = function (orderNumber) {
           $scope.orderNumberWithNewCarWindowOpened = orderNumber;
-          $ionicModal.fromTemplateUrl('templates/modal.html', {
+          $ionicModal.fromTemplateUrl('templates/new_car_modal.html', {
               scope: $scope
           }).then(function (modal) {
               $scope.modal = modal;
@@ -316,15 +317,15 @@ function ($scope, $q, orderService, servicesService, carService, officeService, 
 
       var getMechanicsRequest = function (orderNumber) {
           var order = $scope.orders.filter(function (x) { return x.number === parseInt(orderNumber) })[0];
-          debugger
+         
         if (order.OfficeId == null || order.OfficeId === "" || order.ServiceId == null || order.ServiceId === "") {
           order.mechanicsArray = [];
           return;
         }
-          debugger
+          
         officeService.getMechanics(order.OfficeId, order.ServiceId).then(function (responce) {
           order.mechanicsArray = responce;
-        debugger
+        //debugger
         }, function (error) {
         debugger
         });
@@ -382,16 +383,17 @@ function ($scope, $q, orderService, servicesService, carService, officeService, 
 
         orderService.creatOrderSet(ordersRequestBody).then(function() {
           $scope.orders = [getNewOrder(1)];
-          $mdDialog.show(
-            $mdDialog.alert()
-            .parent(angular.element(document.body))
-            .clickOutsideToClose(true)
-            .title("Complete")
-            .textContent("All orders were created successfully.")
-            .ok("Ok")
-          );
+          //debugger
+          $ionicPopup.alert({
+              title: 'Complete',
+              template: "All orders were created successfully."
+          });
         }, function(error) {
-          
+            debugger
+            $ionicPopup.alert({
+                title: 'Error',
+                template: "Fill in the fields"
+            });
         });
       };
 
@@ -433,17 +435,17 @@ function ($scope, $q, orderService, servicesService, carService, officeService, 
 
       $scope.detailManagementOpen = function(orderId) {
         $scope.openOrderDetailManagement = orderId;
-        $mdDialog.show({
-          scope: $scope.$new(),
-          templateUrl: "/sto/order/detail.manangement.dialog.html",
-          parent: angular.element(document.getElementById("mainElement")),
-          clickOutsideToClose: true
+          $ionicModal.fromTemplateUrl('templates/detail_management_modal.html', {
+            scope: $scope
+        }).then(function (modal) {
+            $scope.modal = modal;
+            $scope.modal.show();
         });
 
       };
 
       $scope.detailManageOk = function() {
-        $mdDialog.hide();
+        $scope.modal.hide();
       };
 
 

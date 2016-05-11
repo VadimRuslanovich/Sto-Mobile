@@ -804,7 +804,7 @@ angular.module('starter.services', [])
             authStatus.token = response.access_token;
             authStatus.role = response.role;
             $localStorage.authStatus = authStatus;
-            debugger
+            //debugger
             deferred.resolve();
         }).error(function (error) {
             debugger
@@ -816,12 +816,12 @@ angular.module('starter.services', [])
 
     var register = function (userInfo) {
         var deferred = $q.defer();
-        debugger
+       // debugger
         $http.post(apiBaseUri + "/signup", userInfo, {
             headers: { 'Content-Type': "application/json" }
         })
           .success(function () {
-              debugger
+              //debugger
               deferred.resolve();
           }).error(function (error) {
               debugger
@@ -896,11 +896,10 @@ angular.module('starter.services', [])
         obj.serviceId = serviceId;
 
         var deferred = $q.defer();
-        debugger
         $http.post(apiBaseUri + "/service/comment", obj, {
             headers: { 'Content-Type': "application/json" }
         }).success(function (responce) {
-        debugger
+        //debugger
             deferred.resolve(responce);
         }).error(function (error) {
         debugger
