@@ -1,0 +1,43 @@
+﻿<ion-view view-title="Orders" hide-back-button="true">
+    <ion-content>
+        Orders
+        <label class="item item-input">
+            <span class="input-label">Date</span>
+            <input type="date" ng-model="selectedDate" ng-change="dateChange(selectedDate)">
+        </label>
+        <ion-list>
+            <ion-item ng-repeat="order in orders">
+                <div class="card">
+                    <div class="item item-divider">
+                        <h2>{{order.Time}}</h2>
+                    </div>
+                    <div class="item item-text-wrap">
+                        <h2>Car</h2>
+                        <p>Brand: {{order.Car.Brand}}</p>
+                        <p>Model: {{order.Car.Model}}</p>
+                        <p>Year: {{order.Car.Year}}</p>
+                        <h2>Customer</h2>
+                        <p>Full name: {{order.Customer.FirstName}} {{order.Customer.LastName}}</p>
+                        <p>Mobile: {{order.Customer.Mobile}}</p>
+                        <h2>Service</h2>
+                        <p>{{order.Service}}</p>
+                        <h2>Details</h2>
+                        <ion-list>
+                            <ion-item ng-repeat="detail in order.Details">
+                                <h3>Category: {{ detail.Category }}</h3>
+                                <h3>Detail Name: {{ detail.Name }}</h3>
+                                <h4>Count: {{ detail.Count }}</h4>
+                            </ion-item>
+                        </ion-list>
+                    </div>
+                    <div class="item item-divider">
+                        <button class="button button-small button-outline button-positive">
+                            Mark as Complete
+                        </button>
+                    </div>
+                </div>
+
+            </ion-item>
+        </ion-list>
+    </ion-content>
+</ion-view>

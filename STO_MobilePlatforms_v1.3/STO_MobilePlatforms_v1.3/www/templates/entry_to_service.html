@@ -1,6 +1,6 @@
 <ion-view view-title="Entry to service" cache-view="false" hide-back-button="true">
     <ion-content>
-        <button class="button button-small button-outline button-positive">
+        <button class="button button-small button-outline button-positive" ng-click="addNewOrder()">
             Add new order
         </button>
 
@@ -8,8 +8,11 @@
             <ion-item ng-repeat="order in orders track by $index">
 
                 <div class="card">
-                    <div class="item item-divider">
+                    <div class="item item-divider item-button-right">
                         Order #{{order.number}}
+                        <button ng-click="removeOrder(order.number)">
+                            <i class="icon ion-trash-a"></i>
+                        </button>
                     </div>
                     <div class="item item-text-wrap">
 
@@ -77,55 +80,14 @@
                         </label>
 
                     </div>
-                    <div class="item item-divider">
-                        <div class="button-bar">
-                            <a class="button" ng-click="removeOrder(order.number)">Remove</a>
-                            <a class="button" ng-click="createOrderSet()">Create</a>
-                        </div>
-                    </div>
-                </div>
-
             </ion-item>
         </ion-list>
     </ion-content>
+    <div class="tabs tabs-icon-top tabs-color-positive"">
+        <a class="tab-item" ng-click="createOrderSet()">
+            <i class="icon ion-checkmark"></i>
+            Create
+        </a>
+    </div>
 </ion-view>
 
-
-
-<script id="templates/modal.html" type="text/ng-template">
-    <ion-modal-view>
-        <ion-header-bar class="bar bar-header bar-positive">
-            <h1 class="title">New car</h1>
-            <button class="button button-clear button-primary" ng-click="modal.hide()">Cancel</button>
-        </ion-header-bar>
-        <ion-content class="padding">
-            <div class="list">
-                <label class="item item-input item-select">
-                    <div class="input-label">
-                        Brand
-                    </div>
-                    <select ng-model="newCar.Brand" ng-change="brandChanged(newCar.Brand)">
-                        <option ng-repeat="model in brandsAndModel track by $index" value="{{model.Brand}}">{{model.Brand}}</option>
-                    </select>
-                </label>
-                <label class="item item-input item-select">
-                    <div class="input-label">
-                        Model
-                    </div>
-                    <select ng-model="newCar.Model" ng-disabled="newCar.Brand == null || newCar.Brand === ''">
-                        <option ng-repeat="model in models track by $index" value="{{model}}">{{model}}</option>
-                    </select>
-                </label>
-                <label class="item item-input item-select">
-                    <div class="input-label">
-                        Year
-                    </div>
-                    <select ng-model="newCar.Year">
-                        <option ng-repeat="year in years track by $index" value="{{year}}">{{year}}</option>
-                    </select>
-                </label>
-                <button class="button button-full button-positive" ng-click="createNewCar()"  ng-disabled="!newCar.Brand || !newCar.Model || !newCar.Year">Create</button>
-            </div>
-        </ion-content>
-    </ion-modal-view>
-</script>

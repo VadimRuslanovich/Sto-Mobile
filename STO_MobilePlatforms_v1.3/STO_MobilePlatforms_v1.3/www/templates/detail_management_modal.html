@@ -1,0 +1,24 @@
+﻿
+<ion-modal-view>
+    <ion-header-bar class="bar bar-header bar-positive">
+        <h1 class="title">Details management</h1>
+        <button class="button button-clear button-primary" ng-click="modal.hide()">Cancel</button>
+    </ion-header-bar>
+    <ion-content class="padding">
+        <ion-list>
+            <ion-item ng-repeat="order in orders | filter: orderFilter">
+                <ion-checkbox aria-label="Select Automatically" class="md-primary" ng-model="order.spareParts.useAllMyDetails">Use only my details</ion-checkbox>
+                <div ng-repeat="partObj in order.spareParts.data">
+                    <label class="item item-input item-select">
+                        <div class="input-label">
+                            Select a {{partObj.Category}}
+                        </div>
+                        <select ng-model="partObj.selected" ng-disabled="order.spareParts.useAllMyDetails">
+                            <option  ng-repeat="part in partObj.Parts" value="{{part.Id}}">{{part.Name}}</option>
+                        </select>
+                    </label>
+                </div>
+            </ion-item>
+            <button class="button button-full button-positive" ng-click="detailManageOk()">Ok</button>
+    </ion-content>
+</ion-modal-view>
