@@ -76,6 +76,16 @@ angular.module('starter', ['ionic', 'ngCordova', 'ngStorage', 'starter.controlle
     }
 })
 
+.state('app.shop', {
+    url: "/shop",
+    views: {
+        'menuContent': {
+            templateUrl: "templates/shop.html",
+            controller: 'ShopCtrl'
+        }
+    }
+})
+
  .state('app.exspress_help', {
      url: "/exspress_help",
     views: {

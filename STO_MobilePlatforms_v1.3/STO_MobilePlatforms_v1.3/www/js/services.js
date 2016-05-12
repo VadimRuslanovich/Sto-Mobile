@@ -836,7 +836,7 @@ angular.module('starter.services', [])
         authStatus.email = null;
         authStatus.token = null;
         authStatus.role = null;
-        delete $localStorage.authStatus;
+        //delete $localStorage.authStatus;
     };
 
     var getStatus = function () {
@@ -1076,4 +1076,70 @@ angular.module('starter.services', [])
             creatOrderSet: creatOrderSet
         }
     }
-]);
+])
+
+.service('shopService', ['$q', '$localStorage', '$http', function ($q, $localStorage, $http) {
+      var getCategoies = function() {
+          var url = apiBaseUri + "/sparepart/categories";
+        var deferred = $q.defer();
+        $http.get(url, {
+            headers: { 'Content-Type': "application/json" }
+          })
+          .success(function (response) {
+              //debugger
+            deferred.resolve(response);
+          }).error(function(error) {
+          debugger
+            deferred.reject(error);
+          });
+        return deferred.promise;
+      };
+
+      var getParts = function(searchModel, skip, take) {
+          var url = apiBaseUri + "/sparepart?skip=" + skip + "&take=" + take;
+        var deferred = $q.defer();
+        $http.post(url, searchModel, {
+            headers: { 'Content-Type': "application/json" }
+          })
+          .success(function(response) {
+          //debugger
+            deferred.resolve(response);
+          }).error(function(error) {
+          debugger
+            deferred.reject(error);
+          });
+        return deferred.promise;
+      };
+
+      var addToCart = function(partId) {
+        if ($localStorage.cart == null) {
+          $localStorage.cart = [];
+        }
+
+        var part = $localStorage.cart.filter(function (x) { return x.id === partId })[0];
+        if (part == null) {
+          $localStorage.cart.push({ id: partId, count: 1 });
+        } else {
+          part.count++;
+        }
+      };
+
+      var getCart = function () {
+          var cart = $localStorage.cart;
+          debugger
+          return cart;
+      }
+
+      var clearCart = function () {
+          delete $localStorage.cart;
+      }
+
+      return {
+        getCategoies: getCategoies,
+        getParts: getParts,
+        addToCart: addToCart,
+        getCart: getCart,
+        clearCart: clearCart
+      };
+    }
+  ]);

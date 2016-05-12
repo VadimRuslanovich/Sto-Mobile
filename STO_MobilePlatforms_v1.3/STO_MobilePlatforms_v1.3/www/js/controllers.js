@@ -55,6 +55,7 @@ angular.module('starter.controllers', ['starter.factory', 'starter.services'])
 
               $scope.login = function () {
                   $scope.isProcess = true;
+                  //$localStorage.cart = null;
                   loginAction();
               };
 
@@ -91,7 +92,10 @@ angular.module('starter.controllers', ['starter.factory', 'starter.services'])
       $rootScope.logout = function () {
           authenticationService.logout();
           $rootScope.isAuthenticated = false;
+          $localStorage.cart = null;
           $location.path('/app/home');
+          $ionicHistory.clearCache();
+          $ionicHistory.clearHistory();
       }
 
 }])
@@ -118,6 +122,117 @@ angular.module('starter.controllers', ['starter.factory', 'starter.services'])
 
 })
 
+
+.controller('ShopCtrl', ['$scope', 'shopService', '$ionicPopup', '$ionicModal', function ($scope, shopService, $ionicPopup, $ionicModal) {
+      $scope.filterIsProcess = false;
+      $scope.filterModel = {
+        InStock: true,
+        categories: [],
+        price: { min: null, max: null }
+      };
+      $scope.openModal = function () {
+          $ionicModal.fromTemplateUrl('templates/filters_modal.html', {
+              scope: $scope
+          }).then(function (modal) {
+              $scope.modal = modal;
+              $scope.modal.show();
+          });
+      }
+
+      $scope.openCart = function () {
+          $ionicModal.fromTemplateUrl('templates/cart_modal.html', {
+              scope: $scope
+          }).then(function (modal) {
+              $scope.modal = modal;
+              $scope.modal.show();
+          });
+      }
+      
+      
+
+      $scope.filterClick = function() {
+        $scope.filterIsProcess = true;
+        shopService.getParts($scope.filterModel, 0, $scope.pageSize).then(function(parts) {
+          $scope.parts = parts;
+          $scope.filterIsProcess = false;
+          $scope.lastPartsResponseIsEmpty = parts.length === 0;
+          $scope.modal.hide();
+        });
+      };
+
+      $scope.pageSize = 10;
+      $scope.elementsLoadIsProcess = false;
+      $scope.lastPartsResponseIsEmpty = false;
+
+      $scope.loadElementsClick = function() {
+        $scope.elementsLoadIsProcess = true;
+        shopService.getParts($scope.filterModel, $scope.parts.length, $scope.pageSize).then(function(parts) {
+          parts.forEach(function(el) {
+            $scope.parts.push(el);
+          });
+          $scope.elementsLoadIsProcess = false;
+          if (parts.length === 0) {
+            $scope.lastPartsResponseIsEmpty = true;
+          }
+        });
+      };
+
+      $scope.addToCart = function(partId) {
+        shopService.addToCart(partId);
+        $ionicPopup.alert({
+              title: 'Complete',
+              template: "Added to Cart"
+          });
+      };
+
+      $scope.getCart = function () {
+          var cart = shopService.getCart();
+          debugger
+          return cart;
+      }
+      // StartUp
+      shopService.getCategoies().then(function(categories) {
+        $scope.filterClick();
+
+        // FILTER categories start
+        $scope.toggle = function(item, list) {
+          var idx = list.indexOf(item);
+          if (idx > -1) {
+            list.splice(idx, 1);
+          } else {
+            list.push(item);
+          }
+        };
+
+        $scope.exists = function(item, list) {
+          return list.indexOf(item) > -1;
+        };
+
+        $scope.isIndeterminate = function() {
+          return ($scope.filterModel.categories.length !== 0 &&
+            $scope.filterModel.categories.length !== $scope.categories.length);
+        };
+
+        $scope.isChecked = function() {
+          return $scope.filterModel.categories.length === $scope.categories.length;
+        };
+
+        $scope.toggleAll = function() {
+          if ($scope.filterModel.categories.length === $scope.categories.length) {
+            $scope.filterModel.categories = [];
+          } else if ($scope.filterModel.categories.length === 0 || $scope.filterModel.categories.length > 0) {
+            $scope.filterModel.categories = [];
+            for (var i = 0; i < $scope.categories.length; i++)
+              $scope.filterModel.categories.push($scope.categories[i].Id);
+          }
+        };
+        // FILTER categories end
+
+        $scope.categories = categories;
+        $scope.toggleAll();
+      });
+    }
+  ])
 
 
 .controller('Exspress_helpCtrl', function ($scope) {
@@ -152,12 +267,13 @@ angular.module('starter.controllers', ['starter.factory', 'starter.services'])
     });
 })
 
-.controller('ServiceCtrl', ['$scope', '$http', '$stateParams', 'servicesService', '$rootScope', '$location',
-    function ($scope, $http, $stateParams, servicesService, $rootScope, $location) {
+.controller('ServiceCtrl', ['$scope', '$http', '$stateParams', 'servicesService', '$rootScope', '$location', '$localStorage',
+    function ($scope, $http, $stateParams, servicesService, $rootScope, $location, $localStorage) {
         $scope.data = {};
         $scope.id = $stateParams.serviceId;
         var serviceId = $scope.id;
         servicesService.getService($scope.id).then(function (service) {
+            var lS = $localStorage;
             $scope.data = service;
             //debugger
         }, function (message) {
