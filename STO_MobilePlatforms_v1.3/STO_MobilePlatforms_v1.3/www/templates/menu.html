@@ -37,6 +37,9 @@
                 <ion-item menu-close class="item-icon-left" href="#/app/exspress_help">
                     <i class="icon ion-help-circled"></i>Exspress help
                 </ion-item>
+                <ion-item menu-close class="item-icon-left" ng-show="isAuthenticated && checkRole(0)" href="#/app/shop">
+                    <i class="icon ion-bag"></i>Shop
+                </ion-item>
                 <!--ion-item menu-close class="item-icon-left" ng-show="isAuthenticated" href="#/app/profile">
                     <i class="icon ion-person"></i>Profile
                 </!--ion-item-->

@@ -1,0 +1,102 @@
+﻿<ion-view view-title="Shop" hide-back-button="true">
+    <ion-content class="padding">
+            <ion-list>
+                <ion-item ng-repeat="part in parts track by $index">
+                        <h3 class="md-headline text-uppercase">{{part.Name}}</h3>
+                        <span class="text-body">{{part.Description}}</span>
+                        <div layout="row">
+                            <div flex layout="column">
+                                <span >Category: {{part.Category}}</span>
+                                <span >Price: {{part.Price}}$</span>
+                                <span >Stock: {{part.InStock}}</span>
+                            </div>
+                            <div flex layout layout-align="end end">
+                                <button class="ion-button-positive" ng-disabled="!part.InStock" ng-click="addToCart(part.Id)">Add to cart</button>
+                            </div>
+                        </div>
+                </ion-item>
+                <button ng-hide="elementsLoadIsProcess || lastPartsResponseIsEmpty" ng-click="loadElementsClick()">Load next {{pageSize}} elements</button>
+                <div layout="column" ng-show="elementsLoadIsProcess">
+                </div>
+            </ion-list>
+    </ion-content>
+
+    <div class="tabs tabs-color-positive">
+        <a class="tab-item" ng-click="openModal()">
+            Filters
+        </a>
+    </div>
+</ion-view>
+
+
+
+<script id="templates/filters_modal.html" type="text/ng-template">
+    <ion-modal-view>
+        <ion-header-bar class="bar bar-header bar-positive">
+            <h1 class="title">Filters</h1>
+            <button class="button button-clear button-primary" ng-click="modal.hide()">Cancel</button>
+        </ion-header-bar>
+        <ion-content class="padding">
+            <div class="list">
+                <label class="item item-input">
+                    <span class="input-label">Name</span>
+                    <input ng-model="filterModel.name">
+                </label>
+                <div layout="column">
+                    <div flex-xs="" flex="50">
+                        <ion-checkbox class="md-primary" aria-label="Categories" ng-checked="isChecked()" md-indeterminate="isIndeterminate()" ng-click="toggleAll()">Categories</ion-checkbox>
+                    </div>
+                    <div ng-repeat="category in categories">
+                        <ion-checkbox class="md-primary" ng-checked="exists(category.Id, filterModel.categories)" ng-click="toggle(category.Id, filterModel.categories)">
+                            {{ category.Name }}
+                        </ion-checkbox>
+                    </div>
+                </div>
+                <label class="item item-input">
+                    <span class="input-label">min</span>
+                    <input ng-model="filterModel.price.min">
+                </label>
+                <label class="item item-input">
+                    <span class="input-label">max</span>
+                    <input ng-model="filterModel.price.max">
+                </label>
+                <ion-checkbox ng-model="filterModel.InStock">Stock</ion-checkbox>
+                <div ng-show="filterIsProcess">
+                </div>
+                <button class="button button-full button-positive" ng-disabled="filterIsProcess" ng-click="filterClick()">Filter</button>
+            </div>
+        </ion-content>
+    </ion-modal-view>
+</script>
+
+
+
+<script id="templates/cart_modal.html" type="text/ng-template">
+    <ion-modal-view>
+        <ion-header-bar class="bar bar-header bar-positive">
+            <h1 class="title">Cart</h1>
+            <button class="button button-clear button-primary" ng-click="modal.hide()">Cancel</button>
+        </ion-header-bar>
+        <ion-content class="padding">
+            <ion-list>
+                <ion-item ng-repeat="part in parts track by $index">
+                    <h3 class="md-headline text-uppercase">{{part.Name}}</h3>
+                    <span class="text-body">{{part.Description}}</span>
+                    <div layout="row">
+                        <div flex layout="column">
+                            <span>Category: {{part.Category}}</span>
+                            <span>Price: {{part.Price}}$</span>
+                            <span>Stock: {{part.InStock}}</span>
+                        </div>
+                        <div flex layout layout-align="end end">
+                            <button class="ion-button-positive" ng-disabled="!part.InStock" ng-click="addToCart(part.Id)">Add to cart</button>
+                        </div>
+                    </div>
+                </ion-item>
+                <button ng-hide="elementsLoadIsProcess || lastPartsResponseIsEmpty" ng-click="loadElementsClick()">Load next {{pageSize}} elements</button>
+                <div layout="column" ng-show="elementsLoadIsProcess">
+                </div>
+            </ion-list>
+        </ion-content>
+    </ion-modal-view>
+</script>
