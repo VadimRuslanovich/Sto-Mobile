@@ -1,4 +1,5 @@
 var apiBaseUri = "http://localhost:9400/api";
+/*var apiBaseUri  = "http://stoserver.azurewebsites.net/api";*/
 var cars = [
   {
       "Brand": "Acura",
@@ -791,11 +792,11 @@ angular.module('starter.services', [])
     };
 
     var login = function (email, password) {
-        logout();
         var data = "grant_type=password" +
           "&username=" + email.toLowerCase() +
-          "&password=" + password;
+          "&password=" + password; 
         var deferred = $q.defer();
+        debugger
         $http.post(apiBaseUri + "/token", data, {
             headers: { 'Content-Type': "application/x-www-form-urlencoded" }
         }).success(function (response) {
@@ -804,7 +805,7 @@ angular.module('starter.services', [])
             authStatus.token = response.access_token;
             authStatus.role = response.role;
             $localStorage.authStatus = authStatus;
-            //debugger
+            debugger
             deferred.resolve();
         }).error(function (error) {
             debugger
@@ -916,6 +917,100 @@ angular.module('starter.services', [])
     };
 })
 
+.service('exspressHelpService', ['$q', '$http', function ($q, $http) {
+
+      var getByCustomerId = function(customerId) {
+        var deferred = $q.defer();
+        $http.get(apiBaseUri + "/expresshelp?customerid=" + customerId, {
+            headers: { 'Content-Type': "application/json" }
+          })
+          .success(function(response) {
+            deferred.resolve(response);
+          }).error(function(error) {
+            deferred.reject(error);
+          });
+        return deferred.promise;
+      };
+
+      var getTypes = function() {
+        var deferred = $q.defer();
+        $http.get(apiBaseUri + "/expresshelp/type", {
+            headers: { 'Content-Type': "application/json" }
+          })
+          .success(function(response) {
+            deferred.resolve(response);
+          }).error(function(error) {
+            deferred.reject(error);
+          });
+        return deferred.promise;
+      };
+
+      var getPriorities = function() {
+        var deferred = $q.defer();
+        $http.get(apiBaseUri + "/expresshelp/priority", {
+            headers: { 'Content-Type': "application/json" }
+          })
+          .success(function(response) {
+            deferred.resolve(response);
+          }).error(function(error) {
+            deferred.reject(error);
+          });
+        return deferred.promise;
+      };
+
+      var send = function(request) {
+        var deferred = $q.defer();
+        $http.post(apiBaseUri + "/expresshelp", request, {
+            headers: { 'Content-Type': "application/json" }
+          })
+          .success(function(response) {
+            deferred.resolve(response);
+          }).error(function(error) {
+            deferred.reject(error);
+          });
+        return deferred.promise;
+      };
+
+      var resolve = function(id) {
+        var deferred = $q.defer();
+        $http.put(apiBaseUri + "/expresshelp", { id: id }, {
+            headers: { 'Content-Type': "application/json" }
+          })
+          .success(function(response) {
+            deferred.resolve(response);
+          }).error(function(error) {
+            deferred.reject(error);
+          });
+        return deferred.promise;
+      };
+
+    var help = function (typeId, priorityId, lat, lng) {
+        var data = "&typeId=" + typeId + "&priorityId=" + priorityId + "&lat=" + lat +
+          "&lng=" + lng;
+        var deferred = $q.defer();
+        debugger
+        $http.post(apiBaseUri + "/ExpressHelp", data, {
+            headers: { 'Content-Type': "application/x-www-form-urlencoded" }
+        }).success(function (response) {
+            debugger
+            deferred.resolve();
+        }).error(function (error) {
+            debugger
+            deferred.reject(error);
+        });
+        return deferred.promise;
+    };
+
+    return {
+        help: help,
+        getByCustomerId: getByCustomerId,
+        getTypes: getTypes,
+        getPriorities: getPriorities,
+        send: send,
+        resolve: resolve
+    };
+}])
+
 .service('officeService', ['$q', '$http', function($q, $http) {
       var getAll = function() {
         var deferred = $q.defer();
@@ -953,17 +1048,6 @@ angular.module('starter.services', [])
 
 .service('carService', ['$q', '$http', function($q, $http) {
       var getBrandsAndModels = function() {
-        /*var url = window.location.origin + "/static/cars.json";
-        var deferred = $q.defer();
-        $http.get(url, {
-            headers: { 'Content-Type': "application/json" }
-          })
-          .success(function(response) {
-            deferred.resolve(response);
-          }).error(function(error) {
-            deferred.reject(error);
-          });
-        return deferred.promise;*/
           return cars;
       };
 
@@ -1036,9 +1120,24 @@ angular.module('starter.services', [])
         return deferred.promise;
       };
 
+      var updateStatus = function(orderId, status) {
+        var deferred = $q.defer();
+        var url = apiBaseUri + "/order/" + orderId + "?status=" + status;
+        $http.put(url, {
+          headers: { 'Content-Type': "application/json" }
+        }).success(function (responce) {
+          deferred.resolve(responce);
+        }).error(function (error) {
+          deferred.reject(error);
+        });
+        return deferred.promise;
+      };
+
       return {
-        getOrders: getOrders
+        getOrders: getOrders,
+        updateStatus: updateStatus
       }
+
     }
 ])
 

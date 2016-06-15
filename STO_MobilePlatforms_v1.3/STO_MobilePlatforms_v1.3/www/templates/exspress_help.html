@@ -1,22 +1,52 @@
 <ion-view view-title="Exspress help" cache-view="false" hide-back-button="true">
-    <ion-content ng-controller="MapCtrl">
+    <ion-content>
         <div id="map" data-tap-disabled="true"></div>
         <a class="button button-icon icon ion-navigate">Find Me</a>
         <div class="list">
             <a class="item item-thumbnail-left" href="#">
                 <img src="../img/town_truck1.jpg">
                 <h2></h2>
-                <button class="button button-positive button-block">
+                <button class="button button-positive button-block" ng-click="openModal()">
                     <i class="icon ion-ios-telephone"></i> Call a tow truck
                 </button>
             </a>
             <a class="item item-thumbnail-left" href="#">
                 <img src="../img/mobileSto.jpg">
                 <h2></h2>
-                <button class="button button-positive button-block">
+                <button class="button button-positive button-block" ng-click="openModal()">
                     <i class="icon ion-ios-telephone-outline"></i> Call a mobile STO
                 </button>
             </a>
         </div>
     </ion-content>
 </ion-view>
+
+
+<script id="templates/helpsettings.html" type="text/ng-template">
+    <ion-modal-view>
+        <ion-header-bar class="bar bar-header bar-positive">
+            <h1 class="title"></h1>
+            <button class="button button-clear button-primary" ng-click="modal.hide()">Cancel</button>
+        </ion-header-bar>
+        <ion-content class="padding">
+                <label class="item item-input item-select">
+                    <div class="input-label">
+                        Priority
+                    </div>
+                    <select ng-model="help.Priority">
+                        <option ng-repeat="priority in priorities" value="{{priority.Id}}">{{priority.Value}}</option>
+                    </select>
+                </label>  
+                <label class="item item-input item-select">
+                    <div class="input-label">
+                        Type
+                    </div>
+                    <select ng-model="help.Type">
+                        <option ng-repeat="type in types" value="{{type.Id}}">{{type.Value}}</option>
+                    </select>
+                </label> 
+                <button class="button button-full button-positive" ng-click="helpMe()" ng-disabled="!help.Priority || !help.Type">Help</button>
+        </ion-content>
+    </ion-modal-view>
+</script>
+

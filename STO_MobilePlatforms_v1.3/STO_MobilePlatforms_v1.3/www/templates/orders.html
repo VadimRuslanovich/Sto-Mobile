@@ -6,7 +6,12 @@
             <input type="date" ng-model="selectedDate" ng-change="dateChange(selectedDate)">
         </label>
         <ion-list>
-            <ion-item ng-repeat="order in orders">
+            <div class="button-bar">
+                <a class="button" ng-click="newOrders()">New</a>
+                <a class="button" ng-click="inProgressOrders()">In Progress</a>
+                <a class="button" ng-click="completedOrders()">Completed</a>
+            </div>
+            <ion-item ng-repeat="order in orders | filter:{ Status: filterItem }">
                 <div class="card">
                     <div class="item item-divider">
                         <h2>{{order.Time}}</h2>
@@ -31,13 +36,19 @@
                         </ion-list>
                     </div>
                     <div class="item item-divider">
-                        <button class="button button-small button-outline button-positive">
-                            Mark as Complete
+                        <button class="button button-small button-outline button-positive" ng-show="order.Status == 0" ng-click="updateStatus(order.Id, 1)">
+                            Start
+                        </button>
+                        <button class="button button-small button-outline button-positive" ng-show="order.Status == 1" ng-click="updateStatus(order.Id, 2)">
+                            Resolve
+                        </button>
+                        <button class="button button-small button-outline button-positive" ng-show="order.Status == 2" ng-click="updateStatus(order.Id, 1)">
+                            Reopen
                         </button>
                     </div>
                 </div>
-
             </ion-item>
+
         </ion-list>
     </ion-content>
 </ion-view>

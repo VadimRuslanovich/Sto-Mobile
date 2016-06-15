@@ -7,12 +7,11 @@
 angular.module('starter', ['ionic', 'ngCordova', 'ngStorage', 'starter.controllers', 'starter.factory', 'starter.services'])
 
 .run(['$rootScope', function ($rootScope, $localStorage, $ionicPlatform) {
-    $rootScope.isAuthenticated = false;
+   // $rootScope.isAuthenticated = false;
     // utility method to convert number to an array of elements
     $rootScope.getNumber = function (num) {
         return new Array(num);
     }
-
 }])
 
 .config(function($stateProvider, $urlRouterProvider, $httpProvider) {

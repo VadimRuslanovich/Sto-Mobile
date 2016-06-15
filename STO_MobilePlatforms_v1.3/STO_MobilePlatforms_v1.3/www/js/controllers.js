@@ -2,10 +2,26 @@ angular.module('starter.controllers', ['starter.factory', 'starter.services'])
 
 .controller('AppCtrl', ['$rootScope', '$scope', '$ionicModal', '$timeout', '$window', 'authenticationService', '$location', '$ionicPopup', '$localStorage',
   function ($rootScope, $scope, $ionicModal, $timeout, $window, authenticationService, $location, $ionicPopup, $localStorage) {
+      if ($localStorage.authStatus) {
+          $rootScope.isAuthenticated = true;
+          $scope.checkRole = function (role) {
+              var authStatus = $localStorage.authStatus;
+              if ((authStatus == null || !authStatus.isAuth) && role == null) {
+                  return false;
+              }
+              if (authStatus != null && authStatus.isAuth && authStatus.role === role) {
+                  return true;
+              }
+              return false;
+          };
+      }
+      else {
+          debugger
+          $rootScope.isAuthenticated = false;
+      }
       $rootScope.$on('showLoginModal', function ($event, scope, cancelCallback, callback) {
           $scope.user = {};
           $scope.isProcess = false;
-
           $scope = scope || $scope;
           $scope.viewLogin = true;
           $ionicModal.fromTemplateUrl('templates/login.html', {
@@ -146,9 +162,7 @@ angular.module('starter.controllers', ['starter.factory', 'starter.services'])
               $scope.modal = modal;
               $scope.modal.show();
           });
-      }
-      
-      
+      }     
 
       $scope.filterClick = function() {
         $scope.filterIsProcess = true;
@@ -234,13 +248,10 @@ angular.module('starter.controllers', ['starter.factory', 'starter.services'])
     }
   ])
 
-
-.controller('Exspress_helpCtrl', function ($scope) {
-})
-
 .controller('OrdersCtrl', ['$scope', '$stateParams', '$rootScope', 'mechanicsordersService',
     function ($scope, $stateParams, $rootScope, mechanicsordersService) {
     
+        $scope.filterItem = 0;
         $scope.dateChange = function (date) {
         mechanicsordersService.getOrders(date).then(function (result) {
             $scope.orders = result;
@@ -252,6 +263,24 @@ angular.module('starter.controllers', ['starter.factory', 'starter.services'])
 
       $scope.selectedDate = new Date();
       $scope.dateChange($scope.selectedDate);
+
+      $scope.updateStatus = function(orderId, status) {
+          mechanicsordersService.updateStatus(orderId, status).then(function (response) {
+          var order = $scope.orders.filter(function (x) { return x.Id === response.OrderId })[0];
+          order.Status = response.Status;
+        });
+      };
+
+      $scope.newOrders = function () {
+          $scope.filterItem = 0;
+      }
+      $scope.inProgressOrders = function () {
+          $scope.filterItem = 1;
+      }
+      $scope.completedOrders = function () {
+          $scope.filterItem = 2;
+      }
+      
 }])
 
 .controller('ProfileCtrl', ['$scope', '$http', '$stateParams', 'authenticationService', '$rootScope',
@@ -306,8 +335,17 @@ angular.module('starter.controllers', ['starter.factory', 'starter.services'])
 }])
 
 
-.controller('MapCtrl', function ($scope, $cordovaGeolocation, $ionicLoading, $ionicPlatform, $http) {
-    $ionicPlatform.ready(function() { 
+.controller('Exspress_helpCtrl', function ($scope, $cordovaGeolocation, $ionicLoading, $ionicPlatform, $http, exspressHelpService, $ionicPopup, $ionicModal) {
+    var lat;
+    var long;
+    $scope.help = {};
+    var errorPopup = function (template) {
+        $ionicPopup.alert({
+            title: 'Error!',
+            template: template
+        });
+    }
+    $ionicPlatform.ready(function () {
         $ionicLoading.show({
             template: '<ion-spinner icon="bubbles"></ion-spinner><br/>Acquiring location!'
         });
@@ -319,12 +357,12 @@ angular.module('starter.controllers', ['starter.factory', 'starter.services'])
         };
 
         $cordovaGeolocation.getCurrentPosition(posOptions).then(function (position) {
-            var lat = position.coords.latitude;
-            var long = position.coords.longitude;
+            lat = position.coords.latitude;
+            long = position.coords.longitude;
+            //lat = 53.6848179;
+            //long = 23.839348;
 
-            var myLatlng = new google.maps.LatLng(53.6848179, 23.839348);
-
-           // var myLatlng = new google.maps.LatLng(lat, long);
+            var myLatlng = new google.maps.LatLng(lat, long);
 
             var mapOptions = {
                 center: myLatlng,
@@ -363,6 +401,52 @@ angular.module('starter.controllers', ['starter.factory', 'starter.services'])
             });
         };
     })
+
+    exspressHelpService.getTypes().then(function (types) {
+        $scope.types = types;
+        debugger
+    }, function (message) {
+        debugger
+    });
+
+    exspressHelpService.getPriorities().then(function (priorities) {
+        $scope.priorities = priorities;
+        debugger
+    }, function (message) {
+        debugger
+    });
+      
+     $scope.openModal = function () {
+         $ionicModal.fromTemplateUrl('templates/helpsettings.html', {
+             scope: $scope
+         }).then(function (modal) {
+             $scope.modal = modal;
+             $scope.modal.show();
+             $scope.hide = function () {
+                 $scope.orderNumberWithNewCarWindowOpened = null;
+                 $scope.newCar = {};
+                 $scope.modal.hide();
+             }
+         });
+     };
+
+     $scope.helpMe = function () {
+         var typeId = $scope.help.Type;
+         var priorityId = $scope.help.Priority;
+         debugger
+         exspressHelpService.help(typeId, priorityId, lat, long).then(function () {
+             debugger
+             errorPopup('Sucess!</br>' + 'Your request has been accepted.');
+             $scope.modal.hide();
+         }, function (error) {
+             debugger
+             if (error.error && error.error_description) {
+                 errorPopup('Code: ' + error.error + ' </br>' + 'Desc: ' + error.error_description);
+             } else {
+                 errorPopup('Error.</br>' + 'Please try again later!' + '</br>' + error.code);
+             }
+         });
+     };
 })
 
 

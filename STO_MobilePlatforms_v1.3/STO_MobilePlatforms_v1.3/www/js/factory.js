@@ -2,18 +2,24 @@
 .factory('StorageService', function ($localStorage) {
 
     $localStorage = $localStorage.$default({
-        things: []
+        user: [],
+        cart: []
     });
 
-    var _getAll = function () {
-        return $localStorage.things;
+    var _getUser = function () {
+        return $localStorage.user;
     };
 
-    var _add = function (thing) {
-        $localStorage.things.push(thing);
+    var addUser = function (user) {
+        $localStorage.user.push(user);
     }
 
-    var _remove = function (thing) {
+    var addToCart = function (thing) {
+        $localStorage.user.push(user);
+    }
+
+
+    var remove = function (thing) {
         $localStorage.things.splice($localStorage.things.indexOf(thing), 1);
     }
 
