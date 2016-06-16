@@ -3,20 +3,22 @@ angular.module('starter.controllers', ['starter.factory', 'starter.services'])
 .controller('AppCtrl', ['$rootScope', '$scope', '$ionicModal', '$timeout', '$window', 'authenticationService', '$location', '$ionicPopup', '$localStorage',
   function ($rootScope, $scope, $ionicModal, $timeout, $window, authenticationService, $location, $ionicPopup, $localStorage) {
       if ($localStorage.authStatus) {
-          $rootScope.isAuthenticated = true;
-          $scope.checkRole = function (role) {
-              var authStatus = $localStorage.authStatus;
-              if ((authStatus == null || !authStatus.isAuth) && role == null) {
+          if ($localStorage.authStatus.isAuth) {
+              $rootScope.isAuthenticated = true;
+              $scope.checkRole = function (role) {
+                  var authStatus = $localStorage.authStatus;
+                  if ((authStatus === null || !authStatus.isAuth) && role === null) {
+                      return false;
+                  }
+                  if (authStatus !== null && authStatus.isAuth && authStatus.role === role) {
+                      return true;
+                  }
                   return false;
-              }
-              if (authStatus != null && authStatus.isAuth && authStatus.role === role) {
-                  return true;
-              }
-              return false;
-          };
+              };
+          } else { $rootScope.isAuthenticated = false; }
       }
       else {
-          debugger
+          //debugger
           $rootScope.isAuthenticated = false;
       }
       $rootScope.$on('showLoginModal', function ($event, scope, cancelCallback, callback) {
@@ -79,22 +81,22 @@ angular.module('starter.controllers', ['starter.factory', 'starter.services'])
                   $scope.isProcess = true;
                   var user = $scope.user;
                   authenticationService.register($scope.user).then(function () {
-                      debugger
+                      //debugger
                       loginAction();
                   }, function (error) {
-                      debugger
+                      //debugger
                       $scope.isProcess = false;
                       $rootScope.isAuthenticated = false;
                   });
-              }
+              };
 
               $scope.checkRole = function (role) {
                   var authStatus = $localStorage.authStatus;
                   //debugger
-                  if ((authStatus == null || !authStatus.isAuth) && role == null) {
+                  if ((authStatus === null || !authStatus.isAuth) && role === null) {
                       return false;
                   }
-                  if (authStatus != null && authStatus.isAuth && authStatus.role === role) {
+                  if (authStatus !== null && authStatus.isAuth && authStatus.role === role) {
                       return true;
                   }
                   return false;
@@ -104,7 +106,7 @@ angular.module('starter.controllers', ['starter.factory', 'starter.services'])
 
       $rootScope.loginFromMenu = function () {
           $rootScope.$broadcast('showLoginModal', $scope, null, null);
-      }
+      };
       $rootScope.logout = function () {
           authenticationService.logout();
           $rootScope.isAuthenticated = false;
@@ -112,7 +114,7 @@ angular.module('starter.controllers', ['starter.factory', 'starter.services'])
           $location.path('/app/home');
           $ionicHistory.clearCache();
           $ionicHistory.clearHistory();
-      }
+      };
 
 }])
 
@@ -139,7 +141,7 @@ angular.module('starter.controllers', ['starter.factory', 'starter.services'])
 })
 
 
-.controller('ShopCtrl', ['$scope', 'shopService', '$ionicPopup', '$ionicModal', function ($scope, shopService, $ionicPopup, $ionicModal) {
+.controller('ShopCtrl', ['$q', '$scope', 'shopService', '$ionicPopup', '$ionicModal', function ($q, $scope, shopService, $ionicPopup, $ionicModal) {
       $scope.filterIsProcess = false;
       $scope.filterModel = {
         InStock: true,
@@ -153,16 +155,16 @@ angular.module('starter.controllers', ['starter.factory', 'starter.services'])
               $scope.modal = modal;
               $scope.modal.show();
           });
-      }
+      };
 
       $scope.openCart = function () {
-          $ionicModal.fromTemplateUrl('templates/cart_modal.html', {
+          $ionicModal.fromTemplateUrl('templates/cart.html', {
               scope: $scope
           }).then(function (modal) {
               $scope.modal = modal;
               $scope.modal.show();
           });
-      }     
+      };
 
       $scope.filterClick = function() {
         $scope.filterIsProcess = true;
@@ -201,9 +203,9 @@ angular.module('starter.controllers', ['starter.factory', 'starter.services'])
 
       $scope.getCart = function () {
           var cart = shopService.getCart();
-          debugger
+          //debugger
           return cart;
-      }
+      };
       // StartUp
       shopService.getCategoies().then(function(categories) {
         $scope.filterClick();
@@ -245,6 +247,62 @@ angular.module('starter.controllers', ['starter.factory', 'starter.services'])
         $scope.categories = categories;
         $scope.toggleAll();
       });
+
+
+      $scope.isLoading = true;
+
+      var promises = [];
+      shopService.getPartsInCart().forEach(function (el) {
+          promises.push(cartService.getpartDetails(el.id));
+      });
+      $q.all(promises).then(function (res) {
+          $scope.cartParts = [];
+          var partsInfo = shopService.getParts();
+          res.forEach(function (el) {
+              el.QTY = partsInfo.filter(function (x) { return x.id === el.Id; })[0].count;
+              el.Total = function () {
+                  return Math.ceil(this.Price * this.QTY * 100) / 100;
+              };
+              $scope.cartParts.push(el);
+          });
+          $scope.isLoading = false;
+      });
+
+      $scope.getTotalCost = function () {
+          var result = 0;
+          if ($scope.cartParts === null) {
+              return result;
+          }
+
+          $scope.cartParts.forEach(function (el) {
+              result += el.Total();
+          });
+          return Math.ceil(result * 100) / 100;
+      };
+
+      $scope.getEstimatedDate = function () {
+          var dat = new Date();
+          dat.setDate(dat.getDate() + 1);
+          return dat.toLocaleDateString();
+      };
+
+      $scope.removePart = function (id) {
+          cartService.removePart(id);
+
+          for (var i = 0; i < $scope.cartParts.length; i++) {
+              if ($scope.cartParts[i].Id === id) {
+                  $scope.cartParts.splice(i, 1);
+                  break;
+              }
+          }
+      };
+
+      $scope.secureCheckout = function () {
+          $scope.cartParts.forEach(function (el) {
+              cartService.removePart(el.Id);
+          });
+          $scope.cartParts = [];
+      };
     }
   ])
 
@@ -257,7 +315,7 @@ angular.module('starter.controllers', ['starter.factory', 'starter.services'])
             $scope.orders = result;
             //debugger
         }, function (error) {
-            debugger
+            //debugger
         });
       };
 
@@ -266,20 +324,20 @@ angular.module('starter.controllers', ['starter.factory', 'starter.services'])
 
       $scope.updateStatus = function(orderId, status) {
           mechanicsordersService.updateStatus(orderId, status).then(function (response) {
-          var order = $scope.orders.filter(function (x) { return x.Id === response.OrderId })[0];
+              var order = $scope.orders.filter(function (x) { return x.Id === response.OrderId; })[0];
           order.Status = response.Status;
         });
       };
 
       $scope.newOrders = function () {
           $scope.filterItem = 0;
-      }
+      };
       $scope.inProgressOrders = function () {
           $scope.filterItem = 1;
-      }
+      };
       $scope.completedOrders = function () {
           $scope.filterItem = 2;
-      }
+      };
       
 }])
 
@@ -310,7 +368,7 @@ angular.module('starter.controllers', ['starter.factory', 'starter.services'])
         });
 
         $scope.submitPost = function (serviceId, post) {
-            debugger
+            //debugger
             servicesService.submitPost(post, serviceId).then(function (comment) {
                 //$scope.service.Comments.push(comment);
                 $scope.post = "";
@@ -324,7 +382,7 @@ angular.module('starter.controllers', ['starter.factory', 'starter.services'])
 
                 $scope.post = "";
             }, function (message) {
-                debugger
+               // debugger
             });
         };
 
@@ -339,12 +397,12 @@ angular.module('starter.controllers', ['starter.factory', 'starter.services'])
     var lat;
     var long;
     $scope.help = {};
-    var errorPopup = function (template) {
+    var Popup = function (title, template) {
         $ionicPopup.alert({
-            title: 'Error!',
+            title: title,
             template: template
         });
-    }
+    };
     $ionicPlatform.ready(function () {
         $ionicLoading.show({
             template: '<ion-spinner icon="bubbles"></ion-spinner><br/>Acquiring location!'
@@ -357,10 +415,10 @@ angular.module('starter.controllers', ['starter.factory', 'starter.services'])
         };
 
         $cordovaGeolocation.getCurrentPosition(posOptions).then(function (position) {
-            lat = position.coords.latitude;
-            long = position.coords.longitude;
-            //lat = 53.6848179;
-            //long = 23.839348;
+            //lat = position.coords.latitude;
+            //long = position.coords.longitude;
+            lat = 53.671091;
+            long = 23.813887;
 
             var myLatlng = new google.maps.LatLng(lat, long);
 
@@ -400,20 +458,20 @@ angular.module('starter.controllers', ['starter.factory', 'starter.services'])
                 alert('Unable to get location: ' + error.message);
             });
         };
-    })
+    });
 
     exspressHelpService.getTypes().then(function (types) {
         $scope.types = types;
-        debugger
+        //debugger
     }, function (message) {
-        debugger
+        //debugger
     });
 
     exspressHelpService.getPriorities().then(function (priorities) {
         $scope.priorities = priorities;
-        debugger
+        //debugger
     }, function (message) {
-        debugger
+       // debugger
     });
       
      $scope.openModal = function () {
@@ -426,24 +484,24 @@ angular.module('starter.controllers', ['starter.factory', 'starter.services'])
                  $scope.orderNumberWithNewCarWindowOpened = null;
                  $scope.newCar = {};
                  $scope.modal.hide();
-             }
+             };
          });
      };
 
      $scope.helpMe = function () {
          var typeId = $scope.help.Type;
          var priorityId = $scope.help.Priority;
-         debugger
+         //debugger
          exspressHelpService.help(typeId, priorityId, lat, long).then(function () {
-             debugger
-             errorPopup('Sucess!</br>' + 'Your request has been accepted.');
+             //debugger
+             Popup('Success!','Your request has been accepted.');
              $scope.modal.hide();
          }, function (error) {
-             debugger
+             //debugger
              if (error.error && error.error_description) {
-                 errorPopup('Code: ' + error.error + ' </br>' + 'Desc: ' + error.error_description);
+                 Popup('Error!','Code: ' + error.error + ' </br>' + 'Desc: ' + error.error_description);
              } else {
-                 errorPopup('Error.</br>' + 'Please try again later!' + '</br>' + error.code);
+                 Popup('Error!','Error.</br>' + 'Please try again later!' + '</br>' + error.code);
              }
          });
      };
@@ -518,7 +576,7 @@ function ($scope, $q, orderService, servicesService, carService, officeService, 
       var getMechanicsRequest = function (orderNumber) {
           var order = $scope.orders.filter(function (x) { return x.number === parseInt(orderNumber) })[0];
          
-        if (order.OfficeId == null || order.OfficeId === "" || order.ServiceId == null || order.ServiceId === "") {
+        if (order.OfficeId === null || order.OfficeId === "" || order.ServiceId === null || order.ServiceId === "") {
           order.mechanicsArray = [];
           return;
         }
@@ -527,7 +585,7 @@ function ($scope, $q, orderService, servicesService, carService, officeService, 
           order.mechanicsArray = responce;
         //debugger
         }, function (error) {
-        debugger
+        //debugger
         });
       };
 
@@ -547,12 +605,12 @@ function ($scope, $q, orderService, servicesService, carService, officeService, 
 
       $scope.detailManagementHide = function (orderNumber) {
         var order = $scope.orders.filter(function (x) { return x.number === parseInt(orderNumber) })[0];
-        return order.spareParts.data == null || order.spareParts.data.length < 1;
+        return order.spareParts.data === null || order.spareParts.data.length < 1;
       };
 
       $scope.createOrderSet = function () {
         var getSparePartIds = function(parts) {
-          if (parts == null || parts.useAllMyDetails || parts.data == null || parts.data.length === 0) {
+          if (parts === null || parts.useAllMyDetails || parts.data === null || parts.data.length === 0) {
             return [];
           }
 
@@ -589,7 +647,7 @@ function ($scope, $q, orderService, servicesService, carService, officeService, 
               template: "All orders were created successfully."
           });
         }, function(error) {
-            debugger
+            //debugger
             $ionicPopup.alert({
                 title: 'Error',
                 template: "Fill in the fields"
@@ -654,7 +712,7 @@ function ($scope, $q, orderService, servicesService, carService, officeService, 
 
       $scope.dateChange = function (date, mechanicId, isAuto, officeId, serviceId, orderId) {
         var order = $scope.orders.filter(function (x) { return x.number === parseInt(orderId) })[0];
-        var mechanicIdResult = (isAuto || mechanicId == null || mechanicId === "") ? null : mechanicId;
+        var mechanicIdResult = (isAuto || mechanicId === null || mechanicId === "") ? null : mechanicId;
         orderService.getTime(officeId, serviceId, mechanicIdResult, date).then(function (result) {
           order.timeArray = result;
         }, function(error) {

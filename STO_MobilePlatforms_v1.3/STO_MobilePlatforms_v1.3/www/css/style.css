@@ -1,7 +1,7 @@
 /* Empty. Add your own CSS if you like */
 
 #map {
-    height: 60%;
+    height: 85%;
     width: 100%;
 }
 .scroll {
@@ -16,4 +16,7 @@ view-title, .title{
 }
 .filters {
     height: 8%;
+}
+.tab-item-button {
+    color: cornflowerblue;
 }

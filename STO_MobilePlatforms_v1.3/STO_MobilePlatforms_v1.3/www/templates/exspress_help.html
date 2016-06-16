@@ -2,20 +2,9 @@
     <ion-content>
         <div id="map" data-tap-disabled="true"></div>
         <a class="button button-icon icon ion-navigate">Find Me</a>
-        <div class="list">
-            <a class="item item-thumbnail-left" href="#">
-                <img src="../img/town_truck1.jpg">
-                <h2></h2>
-                <button class="button button-positive button-block" ng-click="openModal()">
-                    <i class="icon ion-ios-telephone"></i> Call a tow truck
-                </button>
-            </a>
-            <a class="item item-thumbnail-left" href="#">
-                <img src="../img/mobileSto.jpg">
-                <h2></h2>
-                <button class="button button-positive button-block" ng-click="openModal()">
-                    <i class="icon ion-ios-telephone-outline"></i> Call a mobile STO
-                </button>
+        <div class="tabs">
+            <a class="tab-item tab-item-button" ng-click="openModal()">
+                <p>Help</p>
             </a>
         </div>
     </ion-content>
@@ -45,7 +34,7 @@
                         <option ng-repeat="type in types" value="{{type.Id}}">{{type.Value}}</option>
                     </select>
                 </label> 
-                <button class="button button-full button-positive" ng-click="helpMe()" ng-disabled="!help.Priority || !help.Type">Help</button>
+                <button class="button button-full button-positive tab-item-button " ng-click="helpMe()" ng-disabled="!help.Priority || !help.Type">Help</button>
         </ion-content>
     </ion-modal-view>
 </script>

@@ -796,7 +796,7 @@ angular.module('starter.services', [])
           "&username=" + email.toLowerCase() +
           "&password=" + password; 
         var deferred = $q.defer();
-        debugger
+        //debugger
         $http.post(apiBaseUri + "/token", data, {
             headers: { 'Content-Type': "application/x-www-form-urlencoded" }
         }).success(function (response) {
@@ -805,10 +805,10 @@ angular.module('starter.services', [])
             authStatus.token = response.access_token;
             authStatus.role = response.role;
             $localStorage.authStatus = authStatus;
-            debugger
+            //debugger
             deferred.resolve();
         }).error(function (error) {
-            debugger
+            //debugger
             logout();
             deferred.reject(error);
         });
@@ -825,7 +825,7 @@ angular.module('starter.services', [])
               //debugger
               deferred.resolve();
           }).error(function (error) {
-              debugger
+             // debugger
               logout();
               deferred.reject(error);
           });
@@ -833,10 +833,10 @@ angular.module('starter.services', [])
     };
 
     var logout = function () {
-        authStatus.isAuth = false;
-        authStatus.email = null;
-        authStatus.token = null;
-        authStatus.role = null;
+        $localStorage.authStatus.isAuth = false;
+        $localStorage.authStatus.email = null;
+        $localStorage.authStatus.token = null;
+        $localStorage.authStatus.role = null;
         //delete $localStorage.authStatus;
     };
 
@@ -988,14 +988,14 @@ angular.module('starter.services', [])
         var data = "&typeId=" + typeId + "&priorityId=" + priorityId + "&lat=" + lat +
           "&lng=" + lng;
         var deferred = $q.defer();
-        debugger
+        //debugger
         $http.post(apiBaseUri + "/ExpressHelp", data, {
             headers: { 'Content-Type': "application/x-www-form-urlencoded" }
         }).success(function (response) {
-            debugger
+            //debugger
             deferred.resolve();
         }).error(function (error) {
-            debugger
+            //debugger
             deferred.reject(error);
         });
         return deferred.promise;
@@ -1145,7 +1145,7 @@ angular.module('starter.services', [])
         var getTime = function (officeId, serviceId, mechanicId, date) {
             var deferred = $q.defer();
             var url = apiBaseUri + "/order/time?" + "officeId=" + officeId + "&serviceId=" + serviceId + "&date=" + date.toISOString();
-            if (mechanicId != null) {
+            if (mechanicId !== null) {
                 url += "&mechanicId=" + mechanicId;
             }
             $http.get(url, {
@@ -1178,8 +1178,40 @@ angular.module('starter.services', [])
 ])
 
 .service('shopService', ['$q', '$localStorage', '$http', function ($q, $localStorage, $http) {
-      var getCategoies = function() {
-          var url = apiBaseUri + "/sparepart/categories";
+    var getPartsInCart = function() {
+        var cart = $localStorage.cart;
+        if (cart === null) {
+          return [];
+        }
+        return cart;
+      };
+
+      var getpartDetails = function(id) {
+        var deferred = $q.defer();
+        $http.get(apiBaseUri + "/sparepart/" + id, {
+            headers: { 'Content-Type': "application/json" }
+          })
+          .success(function(response) {
+            deferred.resolve(response);
+          }).error(function(error) {
+            deferred.reject(error);
+          });
+        return deferred.promise;
+      };
+
+      var removePart = function(id) {
+        var data = $localStorage.cart;
+        for (var i = 0; i < data.length; i++) {
+          if (data[i].id === id) {
+            data.splice(i, 1);
+            break;
+          }
+        }
+      };
+
+
+    var getCategoies = function () {
+        var url = apiBaseUri + "/sparepart/categories";
         var deferred = $q.defer();
         $http.get(url, {
             headers: { 'Content-Type': "application/json" }
@@ -1188,7 +1220,7 @@ angular.module('starter.services', [])
               //debugger
             deferred.resolve(response);
           }).error(function(error) {
-          debugger
+          //debugger
             deferred.reject(error);
           });
         return deferred.promise;
@@ -1204,19 +1236,19 @@ angular.module('starter.services', [])
           //debugger
             deferred.resolve(response);
           }).error(function(error) {
-          debugger
+          //debugger
             deferred.reject(error);
           });
         return deferred.promise;
       };
 
       var addToCart = function(partId) {
-        if ($localStorage.cart == null) {
+        if ($localStorage.cart === null) {
           $localStorage.cart = [];
         }
 
         var part = $localStorage.cart.filter(function (x) { return x.id === partId })[0];
-        if (part == null) {
+        if (!part) {
           $localStorage.cart.push({ id: partId, count: 1 });
         } else {
           part.count++;
@@ -1225,7 +1257,7 @@ angular.module('starter.services', [])
 
       var getCart = function () {
           var cart = $localStorage.cart;
-          debugger
+          //debugger
           return cart;
       }
 
@@ -1234,6 +1266,9 @@ angular.module('starter.services', [])
       }
 
       return {
+        getPartsInCart: getPartsInCart,
+        getpartDetails: getpartDetails,
+        removePart: removePart,
         getCategoies: getCategoies,
         getParts: getParts,
         addToCart: addToCart,

@@ -15,15 +15,18 @@
                             </div>
                         </div>
                 </ion-item>
-                <button ng-hide="elementsLoadIsProcess || lastPartsResponseIsEmpty" ng-click="loadElementsClick()">Load next {{pageSize}} elements</button>
+                <button class="button-positive" ng-hide="elementsLoadIsProcess || lastPartsResponseIsEmpty" ng-click="loadElementsClick()">Load next {{pageSize}} elements</button>
                 <div layout="column" ng-show="elementsLoadIsProcess">
                 </div>
             </ion-list>
     </ion-content>
 
-    <div class="tabs tabs-color-positive">
-        <a class="tab-item" ng-click="openModal()">
+    <div class="tabs">
+        <a class="tab-item tab-item-button" ng-click="openModal()">
             Filters
+        </a>
+        <a class="tab-item tab-item-button" ng-click="openCart()">
+            Cart
         </a>
     </div>
 </ion-view>
@@ -71,32 +74,55 @@
 
 
 
-<script id="templates/cart_modal.html" type="text/ng-template">
+<script id="templates/cart.html" type="text/ng-template">
     <ion-modal-view>
         <ion-header-bar class="bar bar-header bar-positive">
             <h1 class="title">Cart</h1>
             <button class="button button-clear button-primary" ng-click="modal.hide()">Cancel</button>
         </ion-header-bar>
         <ion-content class="padding">
-            <ion-list>
-                <ion-item ng-repeat="part in parts track by $index">
-                    <h3 class="md-headline text-uppercase">{{part.Name}}</h3>
-                    <span class="text-body">{{part.Description}}</span>
-                    <div layout="row">
-                        <div flex layout="column">
-                            <span>Category: {{part.Category}}</span>
-                            <span>Price: {{part.Price}}$</span>
-                            <span>Stock: {{part.InStock}}</span>
-                        </div>
-                        <div flex layout layout-align="end end">
-                            <button class="ion-button-positive" ng-disabled="!part.InStock" ng-click="addToCart(part.Id)">Add to cart</button>
-                        </div>
-                    </div>
-                </ion-item>
-                <button ng-hide="elementsLoadIsProcess || lastPartsResponseIsEmpty" ng-click="loadElementsClick()">Load next {{pageSize}} elements</button>
-                <div layout="column" ng-show="elementsLoadIsProcess">
+                
+            <div class="card"  ng-show="cartParts == null || cartParts.length == 0">
+                <div class="item item-divider item-button-right">
+                    <span>Shopping cart summary</span>
                 </div>
-            </ion-list>
+                <div class="item item-text-wrap">
+                    <span>No items in cart.</span>
+                    <p>
+                        <a href="#/app/shop">Continue shopping</a>
+                    </p>
+
+                </div>
+            </div>
+
+            <div class="card" ng-hide="cartParts == null || cartParts.length == 0">
+                <div class="item item-divider item-button-right">
+                    <span>Shopping cart summary</span>
+                </div>
+                <div class="item item-text-wrap">
+                    <ion-list>
+                        <ion-item ng-repeat="cartPart in cartParts track by $index">
+                            <h3 class="md-headline text-uppercase">{{part.Name}}</h3>
+                            <span class="text-body">{{cartPart.Description}}</span>
+                            <span class="text-body">{{cartPart.Total()}} $</span>
+                            <div layout="row">
+                                <div flex layout="column">
+                                    <span>Category: {{cartPart.Category}}</span>
+                                    <span>Price: {{cartPart.Price}}$</span>
+                                    <span>Stock: {{cartPart.InStock}}</span>
+                                </div>
+                                <button class="ion-button-positive" ng-click="removePart(cartPart.Id)">Remove</button>
+                            </div>
+                        </ion-item>
+                    </ion-list>
+                    <div layout="row" style="margin: 18px;">
+                            <span>Total:&nbsp;</span> <span>{{getTotalCost()}} $</span>
+                            <span>Estimated Date:&nbsp;</span> <span>{{getEstimatedDate()}}</span>
+                        <button class="ion-button-positive" ng-click="secureCheckout()">Secure Checkout »</button>
+                    </div>
+                </div>
+            </div>
+
         </ion-content>
     </ion-modal-view>
 </script>
